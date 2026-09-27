@@ -1,7 +1,7 @@
-"""Local MIMIC preprocessing; stdout contains stage names only, never records.
+"""Build hourly heart-rate inputs and evaluate three baseline predictors.
 
 Patient-level databases, datasets, and errors stay outside the code workspace.
-Only pre-defined cohort-level summary statistics are written to reports/.
+Only aggregate statistics are written to reports/.
 """
 from __future__ import annotations
 
@@ -56,7 +56,7 @@ def register_variables(con):
 
 
 def build_clean_events(con):
-    """Apply mutually auditable record-level quality flags without losing raw data."""
+    """Flag exclusion reasons, retain valid measurements, and remove duplicates."""
     con.execute("""
         CREATE OR REPLACE TABLE assessed AS
         SELECT e.*, v.name, s.intime, s.outtime, s.split,
@@ -80,11 +80,12 @@ def build_clean_events(con):
 
 
 def build_hourly(con):
-    """Full UTC-like deidentified calendar hour bins; no cross-stay fill.
+    """Group records into full clock-hour intervals within each ICU stay.
 
     At boundary t, (t-1h, t] is the current hour. Full stay-contained bins only.
-    Features use only records with storetime <= t. Labels use observed means.
-    One empty feature bin can use the preceding observed feature, never more.
+    feature_hr describes availability at each interval's own end, for diagnosis.
+    build_windows reconstructs the final inputs at each later prediction time.
+    Labels use observed means. No timezone conversion is performed.
     """
     con.execute("""
         CREATE OR REPLACE TABLE hourly_observed AS
@@ -127,7 +128,7 @@ def build_hourly(con):
 
 
 def build_windows(con):
-    """Reconstruct each historical bin AS OF the prediction boundary.
+    """Build six hourly inputs using records stored by prediction time.
 
     Delayed measurements become usable after they are stored, but cannot change
     earlier predictions. Seven raw historical bins permit one-bin forward fill
@@ -195,7 +196,7 @@ def quality_summary(con):
 
 
 def safe_summary(con):
-    """Return only a fixed allow-list of full-cohort aggregates. No record samples."""
+    """Calculate baseline errors, dataset counts, and consistency checks."""
     train_mean = con.execute("SELECT avg(target_hr) FROM windows WHERE split='train'").fetchone()[0]
     if train_mean is None:
         raise RuntimeError("No training windows")
@@ -248,59 +249,59 @@ def safe_summary(con):
         THEN charttime ELSE date_trunc('hour',charttime)+INTERVAL '1 hour' END) AS after_bin_close
       FROM clean_events WHERE itemid=220045""")[0]
     duplicate_count = con.execute("SELECT (SELECT count(*) FROM assessed WHERE matched_stay AND within_stay AND value_valid AND unit_valid AND warning_clear)-(SELECT count(*) FROM clean_events)").fetchone()[0]
-    window_coverage=records(con,"""SELECT w.split,count(*) AS windows,count(DISTINCT w.subject_id) AS patients,
+    window_coverage = records(con, """SELECT w.split,count(*) AS windows,count(DISTINCT w.subject_id) AS patients,
       count(DISTINCT w.stay_id) AS stays,
       sum(CAST(NOT mask0 AS INTEGER)+CAST(NOT mask1 AS INTEGER)+CAST(NOT mask2 AS INTEGER)+CAST(NOT mask3 AS INTEGER)+CAST(NOT mask4 AS INTEGER)+CAST(NOT mask5 AS INTEGER)) AS imputed_input_slots,
       6*count(*) AS total_input_slots
       FROM windows w GROUP BY w.split ORDER BY w.split""")
-    eligible_origins=records(con,"""SELECT h.split,count(*) AS origins_with_six_hours_and_observed_target
+    eligible_origins = records(con, """SELECT h.split,count(*) AS origins_with_six_hours_and_observed_target
       FROM hourly h JOIN stays s USING(stay_id)
       WHERE h.target_hr IS NOT NULL AND h.t-INTERVAL '6 hours'>=s.intime GROUP BY h.split ORDER BY h.split""")
-    delay_quantiles=records(con,"""SELECT median(epoch(storetime-charttime)/60) AS median_minutes,
+    delay_quantiles = records(con, """SELECT median(epoch(storetime-charttime)/60) AS median_minutes,
       quantile_cont(epoch(storetime-charttime)/60,0.9) AS p90_minutes
       FROM clean_events WHERE itemid=220045 AND storetime>=charttime""")[0]
-    return {"cohort_by_split":cohort,"quality_by_item":quality_summary(con),"hourly_by_split":hourly,
-            "baseline_metrics":metrics,"integrity_checks":asserts,"heart_rate_intervals":intervals,
-            "heart_rate_recording_delay":delay,"duplicate_model_records_removed":duplicate_count,
-            "training_target_mean_bpm":train_mean,"window_coverage_by_split":window_coverage,
-            "eligible_origins_by_split":eligible_origins,"nonnegative_recording_delay":delay_quantiles,
+    return {"cohort_by_split":cohort, "quality_by_item":quality_summary(con), "hourly_by_split":hourly,
+            "baseline_metrics":metrics, "integrity_checks":asserts, "heart_rate_intervals":intervals,
+            "heart_rate_recording_delay":delay, "duplicate_model_records_removed":duplicate_count,
+            "training_target_mean_bpm":train_mean, "window_coverage_by_split":window_coverage,
+            "eligible_origins_by_split":eligible_origins, "nonnegative_recording_delay":delay_quantiles,
             "input_policy":"Each historical bin reconstructed using only records stored by the current prediction time; one-bin forward fill from an observed older bin."}
 
 
 def main():
-    parser=argparse.ArgumentParser()
-    parser.add_argument("--config",default=str(ROOT/"configs/pipeline.json"))
-    args=parser.parse_args()
-    config=json.loads(Path(args.config).read_text(encoding="utf-8"))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", default=str(ROOT/"configs/pipeline.json"))
+    args = parser.parse_args()
+    config = json.loads(Path(args.config).read_text(encoding="utf-8"))
     if config["lookback_hours"] != 6:
         raise ValueError("This version supports six-hour lookback only")
-    raw=Path(config["raw_root"]).resolve()
-    private=Path(config["private_root"]).resolve()/config["run_id"]
+    raw = Path(config["raw_root"]).resolve()
+    private = Path(config["private_root"]).resolve()/config["run_id"]
     if private.is_relative_to(ROOT) or private.is_relative_to(raw):
         raise ValueError("Restricted output must be outside source and code directories")
-    private.mkdir(parents=True,exist_ok=True)
-    start=time.time()
-    con=None
+    private.mkdir(parents=True, exist_ok=True)
+    start = time.time()
+    con = None
     try:
-        fingerprint=hashlib.sha256((Path(__file__).read_bytes()+json.dumps(config,sort_keys=True).encode())).hexdigest()
-        marker=private/"run_fingerprint.txt"
-        if marker.exists() and marker.read_text()!=fingerprint:
+        fingerprint = hashlib.sha256((Path(__file__).read_bytes()+json.dumps(config, sort_keys=True).encode())).hexdigest()
+        marker = private/"run_fingerprint.txt"
+        if marker.exists() and marker.read_text() != fingerprint:
             raise RuntimeError("Existing run has different code/config; use a new run_id")
         marker.write_text(fingerprint)
         (private/"pipeline_source.py").write_bytes(Path(__file__).read_bytes())
-        (private/"config_snapshot.json").write_text(json.dumps(config,indent=2),encoding="utf-8")
+        (private/"config_snapshot.json").write_text(json.dumps(config, indent=2), encoding="utf-8")
         stage("1/7 Verifying source checksums (no patient output)")
-        manifest={line.split(maxsplit=1)[1].strip().lstrip('*'):line.split()[0] for line in (raw/"SHA256SUMS.txt").read_text().splitlines() if line.strip()}
-        checks=[]
-        for name in ["icu/d_items.csv.gz","icu/icustays.csv.gz","hosp/patients.csv.gz","icu/chartevents.csv.gz"]:
-            p=raw/name
+        manifest = {line.split(maxsplit=1)[1].strip().lstrip('*'):line.split()[0] for line in (raw/"SHA256SUMS.txt").read_text().splitlines() if line.strip()}
+        checks = []
+        for name in ["icu/d_items.csv.gz", "icu/icustays.csv.gz", "hosp/patients.csv.gz", "icu/chartevents.csv.gz"]:
+            p = raw/name
             with p.open("rb") as f:
-                digest=hashlib.file_digest(f,"sha256").hexdigest()
-            ok=digest==manifest.get(name)
-            checks.append({"file":name,"bytes":p.stat().st_size,"sha256":digest,"matches_local_manifest":ok})
+                digest = hashlib.file_digest(f, "sha256").hexdigest()
+            ok = digest == manifest.get(name)
+            checks.append({"file":name, "bytes":p.stat().st_size, "sha256":digest, "matches_local_manifest":ok})
             if not ok:
                 raise RuntimeError("Source checksum mismatch")
-        con=duckdb.connect(str(private/"pipeline.duckdb"))
+        con = duckdb.connect(str(private/"pipeline.duckdb"))
         con.execute(f"SET memory_limit='{config['memory_limit']}'")
         con.execute(f"SET threads={int(config['threads'])}")
         con.execute("SET enable_progress_bar=false")
@@ -309,7 +310,7 @@ def main():
         register_variables(con)
         stage("2/7 Reading metadata and constructing patient-level splits")
         con.execute(f"CREATE OR REPLACE TABLE items AS SELECT * FROM read_csv({sql_path(raw/'icu/d_items.csv.gz')},header=true)")
-        mismatches=con.execute("SELECT count(*) FROM variables v LEFT JOIN items d USING(itemid) WHERE d.itemid IS NULL OR d.linksto!='chartevents' OR lower(trim(d.unitname))!=lower(v.unit)").fetchone()[0]
+        mismatches = con.execute("SELECT count(*) FROM variables v LEFT JOIN items d USING(itemid) WHERE d.itemid IS NULL OR d.linksto!='chartevents' OR lower(trim(d.unitname))!=lower(v.unit)").fetchone()[0]
         if mismatches:
             raise RuntimeError("Item dictionary metadata mismatch")
         con.execute(f"CREATE OR REPLACE TABLE all_stays AS SELECT * FROM read_csv({sql_path(raw/'icu/icustays.csv.gz')},header=true)")
@@ -325,9 +326,8 @@ def main():
         if con.execute("SELECT count(*)-count(DISTINCT stay_id) FROM stays").fetchone()[0]:
             raise RuntimeError("Duplicate cohort stay IDs")
         stage("3/7 Scanning complete compressed chartevents; this is the long step")
-        completed_scan=private/"scan_complete.txt"
+        completed_scan = private/"scan_complete.txt"
         if not completed_scan.exists():
-            item_list=','.join(str(v[0]) for v in VARIABLES)
             con.execute(f"""CREATE OR REPLACE TABLE candidates AS
               SELECT try_cast(subject_id AS BIGINT) AS subject_id,try_cast(hadm_id AS BIGINT) AS hadm_id,
                 try_cast(stay_id AS BIGINT) AS stay_id,try_cast(itemid AS INTEGER) AS itemid,
@@ -342,38 +342,38 @@ def main():
         build_hourly(con)
         stage("5/7 Constructing six-hour windows and evaluating fixed baselines")
         build_windows(con)
-        summary=safe_summary(con)
+        summary = safe_summary(con)
         stage("6/7 Exporting local restricted datasets and validation artifacts")
-        for table in ["stays","clean_events","hourly","windows"]:
-            for split in ["train","validation","test"]:
-                path=private/f"{table}_{split}.parquet"
+        for table in ["stays", "clean_events", "hourly", "windows"]:
+            for split in ["train", "validation", "test"]:
+                path = private/f"{table}_{split}.parquet"
                 con.execute(f"COPY (SELECT * FROM {table} WHERE split='{split}') TO {sql_path(path)} (FORMAT PARQUET,COMPRESSION ZSTD)")
-                exported=con.execute(f"SELECT count(*) FROM read_parquet({sql_path(path)})").fetchone()[0]
-                expected=con.execute(f"SELECT count(*) FROM {table} WHERE split='{split}'").fetchone()[0]
+                exported = con.execute(f"SELECT count(*) FROM read_parquet({sql_path(path)})").fetchone()[0]
+                expected = con.execute(f"SELECT count(*) FROM {table} WHERE split='{split}'").fetchone()[0]
                 if expected != exported:
                     raise RuntimeError("Export count mismatch")
-        summary.update({"created_at_utc":datetime.now(timezone.utc).isoformat(),"run_id":config["run_id"],
-          "config":config,"code_config_sha256":fingerprint,"input_checksums":checks,
-          "full_chartevents_scan":True,"export_row_counts_match":True,
+        summary.update({"created_at_utc":datetime.now(timezone.utc).isoformat(), "run_id":config["run_id"],
+          "config":config, "code_config_sha256":fingerprint, "input_checksums":checks,
+          "full_chartevents_scan":True, "export_row_counts_match":True,
           "cohort_excluded_stays":con.execute("SELECT (SELECT count(*) FROM all_stays)-(SELECT count(*) FROM stays)").fetchone()[0],
-          "elapsed_seconds":round(time.time()-start,1),
-          "versions":{p:importlib.metadata.version(p) for p in ['duckdb','numpy','pandas','pyarrow']},
-          "python":sys.version.split()[0],"restricted_output_root":str(private),
+          "elapsed_seconds":round(time.time()-start, 1),
+          "versions":{p:importlib.metadata.version(p) for p in ['duckdb', 'numpy', 'pandas', 'pyarrow']},
+          "python":sys.version.split()[0], "restricted_output_root":str(private),
           "test_metrics_status":"preliminary descriptive run; no tuning performed; test set has now been inspected"})
         # These aggregate outputs intentionally contain no subject/stay IDs or clinical timestamps.
-        reports=ROOT/"reports"
+        reports = ROOT/"reports"
         reports.mkdir(exist_ok=True)
-        payload=json.dumps(summary,ensure_ascii=False,indent=2,allow_nan=False)
-        (private/"aggregate_summary.json").write_text(payload,encoding="utf-8")
-        (reports/"aggregate_summary.json").write_text(payload,encoding="utf-8")
+        payload = json.dumps(summary, ensure_ascii=False, indent=2, allow_nan=False)
+        (private/"aggregate_summary.json").write_text(payload, encoding="utf-8")
+        (reports/"aggregate_summary.json").write_text(payload, encoding="utf-8")
         (private/"SUCCESS.txt").write_text("All integrity and export checks passed.")
         stage("7/7 SUCCESS. Aggregate summary saved; patient-level outputs remain local.")
     except Exception as exc:
-        (private/"error_private.log").write_text(traceback.format_exc(),encoding="utf-8")
-        safe_error={"exception_class":type(exc).__name__,"frames":[{"file":Path(f.filename).name,"line":f.lineno,"function":f.name} for f in traceback.extract_tb(exc.__traceback__)]}
-        (private/"error_safe.json").write_text(json.dumps(safe_error,indent=2),encoding="utf-8")
+        (private/"error_private.log").write_text(traceback.format_exc(), encoding="utf-8")
+        safe_error = {"exception_class":type(exc).__name__, "frames":[{"file":Path(f.filename).name, "line":f.lineno, "function":f.name} for f in traceback.extract_tb(exc.__traceback__)]}
+        (private/"error_safe.json").write_text(json.dumps(safe_error, indent=2), encoding="utf-8")
         # Never print an exception message/traceback from a real-data operation.
-        print('FAILED; exception class: '+type(exc).__name__+'. Detailed error retained locally.',flush=True)
+        print('FAILED; exception class: '+type(exc).__name__+'. Detailed error retained locally.', flush=True)
         return 1
     finally:
         if con is not None:

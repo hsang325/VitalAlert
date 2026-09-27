@@ -39,8 +39,12 @@ have not been established.
   patient splitting, and baseline evaluation.
 - `scripts/validate_local.py`: independent checks of local processing outputs.
 - `tests/test_pipeline.py`: synthetic tests without patient data.
+- `scripts/run_tests.py`: runs the tests and writes their actual result to
+  `reports/synthetic_test_summary.json`.
 - `configs/pipeline.json`: local data paths and processing settings.
 - `environment.yml`: Python environment specification.
+
+- `docs/METHODS.md`: inclusion rules, input construction and evaluation details.
 
 ## Running locally
 
@@ -59,7 +63,7 @@ If the environment already exists, activate it without creating it again.
 Run the synthetic tests from the repository root:
 
 ```powershell
-python -B -m unittest discover -s tests -v
+python -B scripts/run_tests.py
 ```
 
 Before processing real data, edit `configs/pipeline.json`:
@@ -72,6 +76,25 @@ python -B -u scripts/pipeline.py
 
 Use a new `run_id` when code or processing settings change.
 A repeated run with the same settings may reuse an existing scan.
+
+## Code version used for these results
+
+The reported metrics were calculated with the code at
+[commit d6f3622](https://github.com/hsang325/VitalAlert/tree/d6f36228860ff6620d91eabba5f1fdca950112c2).
+The subsequent review clarified comments and spacing and removed an unused
+variable in the pipeline. Its calculation statements are unchanged, as checked
+by comparing Python syntax trees after excluding docstrings and that variable.
+Real patient data were not processed again during this review.
+
+`reports/aggregate_summary.json` and `reports/validation_summary.json` retain
+the original run results. The latter contains a historical synthetic test count;
+current `validate_local.py` reports only the window checks it actually performs.
+New synthetic test results are recorded separately by `run_tests.py`.
+`reports/code_review_provenance.json` links the original run to this review.
+
+The existing run folder checks the full source-file fingerprint, including
+comments and formatting. Use a new `run_id` for a processing run with the current
+source; do not overwrite the old run's fingerprint.
 
 ## Data handling
 

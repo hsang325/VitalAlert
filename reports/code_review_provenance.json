@@ -1,0 +1,17 @@
+{
+  "run_id": "20260926-core-v2",
+  "result_source_commit": "d6f36228860ff6620d91eabba5f1fdca950112c2",
+  "result_source_url": "https://github.com/hsang325/VitalAlert/blob/d6f36228860ff6620d91eabba5f1fdca950112c2/scripts/pipeline.py",
+  "recorded_code_config_sha256": "3ede6cbe7ab71e2e0da0e45203f4d72f1fc15558603cfe2be5a868a2601faa23",
+  "recorded_pipeline_sha256": "04efe2581e328b38aba5a08cc1427ae531751bfa150aaa52b5e69007394aac07",
+  "current_pipeline_sha256": "e963b6b0e0f0cd92718220d8c69640a28bb124037e1ceeb12574cd6d9de444e3",
+  "pipeline_computational_ast_unchanged": true,
+  "changes": [
+    "Clarified docstrings",
+    "Adjusted Python spacing",
+    "Removed unused item_list"
+  ],
+  "real_data_reprocessed_in_this_review": false,
+  "validation_summary_is_historical": true,
+  "synthetic_test_results": "reports/synthetic_test_summary.json"
+}
