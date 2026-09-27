@@ -1,0 +1,13 @@
+name: vitalalert
+channels:
+  - defaults
+dependencies:
+  - python=3.12.13
+  - numpy=2.5.3
+  - pandas=3.0.6
+  - pyarrow=23.0.1
+  - matplotlib=3.11.2
+  - pip
+  - pip:
+      - duckdb==1.5.5
+

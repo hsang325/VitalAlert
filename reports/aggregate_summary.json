@@ -1,0 +1,407 @@
+{
+  "cohort_by_split": [
+    {
+      "split": "test",
+      "stays": 11456,
+      "patients": 7723
+    },
+    {
+      "split": "train",
+      "stays": 50778,
+      "patients": 35542
+    },
+    {
+      "split": "validation",
+      "stays": 10947,
+      "patients": 7655
+    }
+  ],
+  "quality_by_item": [
+    {
+      "itemid": 220045,
+      "name": "heart_rate",
+      "candidate_records": 6460839,
+      "unmatched_records": 0,
+      "outside_stay_records": 14264,
+      "invalid_value_records": 2658,
+      "unit_mismatch_records": 0,
+      "warning_records": 23560,
+      "clean_records": 6420956,
+      "stays_with_clean_record": 73157
+    },
+    {
+      "itemid": 220050,
+      "name": "sbp_arterial",
+      "candidate_records": 2264001,
+      "unmatched_records": 0,
+      "outside_stay_records": 1924,
+      "invalid_value_records": 171,
+      "unit_mismatch_records": 0,
+      "warning_records": 15300,
+      "clean_records": 2246654,
+      "stays_with_clean_record": 27513
+    },
+    {
+      "itemid": 220051,
+      "name": "dbp_arterial",
+      "candidate_records": 2263647,
+      "unmatched_records": 0,
+      "outside_stay_records": 1924,
+      "invalid_value_records": 339,
+      "unit_mismatch_records": 0,
+      "warning_records": 15156,
+      "clean_records": 2246272,
+      "stays_with_clean_record": 27520
+    },
+    {
+      "itemid": 220052,
+      "name": "map_arterial",
+      "candidate_records": 2272013,
+      "unmatched_records": 0,
+      "outside_stay_records": 1957,
+      "invalid_value_records": 4830,
+      "unit_mismatch_records": 0,
+      "warning_records": 8593,
+      "clean_records": 2256729,
+      "stays_with_clean_record": 27646
+    },
+    {
+      "itemid": 220179,
+      "name": "sbp_noninvasive",
+      "candidate_records": 4067219,
+      "unmatched_records": 0,
+      "outside_stay_records": 6404,
+      "invalid_value_records": 245,
+      "unit_mismatch_records": 0,
+      "warning_records": 22115,
+      "clean_records": 4038516,
+      "stays_with_clean_record": 72190
+    },
+    {
+      "itemid": 220180,
+      "name": "dbp_noninvasive",
+      "candidate_records": 4066337,
+      "unmatched_records": 0,
+      "outside_stay_records": 6400,
+      "invalid_value_records": 445,
+      "unit_mismatch_records": 0,
+      "warning_records": 21899,
+      "clean_records": 4037650,
+      "stays_with_clean_record": 72187
+    },
+    {
+      "itemid": 220181,
+      "name": "map_noninvasive",
+      "candidate_records": 4064537,
+      "unmatched_records": 0,
+      "outside_stay_records": 6290,
+      "invalid_value_records": 246,
+      "unit_mismatch_records": 0,
+      "warning_records": 10304,
+      "clean_records": 4047720,
+      "stays_with_clean_record": 72205
+    },
+    {
+      "itemid": 220210,
+      "name": "respiratory_rate",
+      "candidate_records": 6393762,
+      "unmatched_records": 0,
+      "outside_stay_records": 13903,
+      "invalid_value_records": 23094,
+      "unit_mismatch_records": 0,
+      "warning_records": 10960,
+      "clean_records": 6346209,
+      "stays_with_clean_record": 73081
+    },
+    {
+      "itemid": 220277,
+      "name": "spo2",
+      "candidate_records": 6324341,
+      "unmatched_records": 0,
+      "outside_stay_records": 12879,
+      "invalid_value_records": 573,
+      "unit_mismatch_records": 0,
+      "warning_records": 17706,
+      "clean_records": 6293279,
+      "stays_with_clean_record": 73065
+    },
+    {
+      "itemid": 224690,
+      "name": "respiratory_rate_total",
+      "candidate_records": 550398,
+      "unmatched_records": 0,
+      "outside_stay_records": 4626,
+      "invalid_value_records": 1300,
+      "unit_mismatch_records": 0,
+      "warning_records": 2694,
+      "clean_records": 541831,
+      "stays_with_clean_record": 29707
+    },
+    {
+      "itemid": 225309,
+      "name": "sbp_art_alternate",
+      "candidate_records": 228488,
+      "unmatched_records": 0,
+      "outside_stay_records": 203,
+      "invalid_value_records": 23,
+      "unit_mismatch_records": 0,
+      "warning_records": 1287,
+      "clean_records": 226976,
+      "stays_with_clean_record": 4815
+    },
+    {
+      "itemid": 225310,
+      "name": "dbp_art_alternate",
+      "candidate_records": 228417,
+      "unmatched_records": 0,
+      "outside_stay_records": 202,
+      "invalid_value_records": 48,
+      "unit_mismatch_records": 0,
+      "warning_records": 1277,
+      "clean_records": 226891,
+      "stays_with_clean_record": 4796
+    },
+    {
+      "itemid": 225312,
+      "name": "map_art_alternate",
+      "candidate_records": 230147,
+      "unmatched_records": 0,
+      "outside_stay_records": 206,
+      "invalid_value_records": 714,
+      "unit_mismatch_records": 0,
+      "warning_records": 930,
+      "clean_records": 228303,
+      "stays_with_clean_record": 4868
+    }
+  ],
+  "hourly_by_split": [
+    {
+      "split": "test",
+      "full_hour_bins": 947806,
+      "observed_bins": 883423,
+      "timely_bins": 61091,
+      "usable_feature_bins": 110673,
+      "filled_bins": 49582
+    },
+    {
+      "split": "train",
+      "full_hour_bins": 4130565,
+      "observed_bins": 3854335,
+      "timely_bins": 268945,
+      "usable_feature_bins": 486305,
+      "filled_bins": 217360
+    },
+    {
+      "split": "validation",
+      "full_hour_bins": 911557,
+      "observed_bins": 848720,
+      "timely_bins": 59331,
+      "usable_feature_bins": 107240,
+      "filled_bins": 47909
+    }
+  ],
+  "baseline_metrics": [
+    {
+      "split": "test",
+      "windows": 610450,
+      "patients": 7578,
+      "mae_bpm": 6.445654254539232,
+      "rmse_bpm": 9.470156906952083,
+      "patient_macro_mae_bpm": 6.494848887957635,
+      "model": "persistence"
+    },
+    {
+      "split": "train",
+      "windows": 2667060,
+      "patients": 34793,
+      "mae_bpm": 6.4003884883775735,
+      "rmse_bpm": 9.448170209045776,
+      "patient_macro_mae_bpm": 6.453145036662828,
+      "model": "persistence"
+    },
+    {
+      "split": "validation",
+      "windows": 586786,
+      "patients": 7475,
+      "mae_bpm": 6.435260230731881,
+      "rmse_bpm": 9.44119803692156,
+      "patient_macro_mae_bpm": 6.426814956653824,
+      "model": "persistence"
+    },
+    {
+      "split": "test",
+      "windows": 610450,
+      "patients": 7578,
+      "mae_bpm": 6.283431146309328,
+      "rmse_bpm": 8.922962295678314,
+      "patient_macro_mae_bpm": 6.385581513873729,
+      "model": "six_hour_mean"
+    },
+    {
+      "split": "train",
+      "windows": 2667060,
+      "patients": 34793,
+      "mae_bpm": 6.212691145090824,
+      "rmse_bpm": 8.861630984665402,
+      "patient_macro_mae_bpm": 6.313962107521797,
+      "model": "six_hour_mean"
+    },
+    {
+      "split": "validation",
+      "windows": 586786,
+      "patients": 7475,
+      "mae_bpm": 6.237857666761309,
+      "rmse_bpm": 8.845774736350638,
+      "patient_macro_mae_bpm": 6.315408341968594,
+      "model": "six_hour_mean"
+    },
+    {
+      "split": "test",
+      "windows": 610450,
+      "patients": 7578,
+      "mae_bpm": 14.03339910448655,
+      "rmse_bpm": 17.559297247976602,
+      "patient_macro_mae_bpm": 13.890097138845615,
+      "model": "training_mean"
+    },
+    {
+      "split": "train",
+      "windows": 2667060,
+      "patients": 34793,
+      "mae_bpm": 14.028212147046576,
+      "rmse_bpm": 17.55072554415212,
+      "patient_macro_mae_bpm": 13.942573360341422,
+      "model": "training_mean"
+    },
+    {
+      "split": "validation",
+      "windows": 586786,
+      "patients": 7475,
+      "mae_bpm": 14.14502012097322,
+      "rmse_bpm": 17.700370496042385,
+      "patient_macro_mae_bpm": 13.959773970597494,
+      "model": "training_mean"
+    }
+  ],
+  "integrity_checks": {
+    "patient_split_overlap": 0,
+    "window_split_overlap": 0,
+    "bad_horizon": 0,
+    "unobserved_targets": 0,
+    "bad_stay_bounds": 0,
+    "missing_inputs": 0,
+    "asof_pivot_disagrees": 0
+  },
+  "heart_rate_intervals": {
+    "positive_intervals": 6347799,
+    "median_minutes": 60.0,
+    "p25_minutes": 60.0,
+    "p75_minutes": 60.0,
+    "fraction_exactly_60min": 0.800910992928415
+  },
+  "heart_rate_recording_delay": {
+    "clean_hr_records": 6420956,
+    "missing_storetime": 0,
+    "storetime_before_charttime": 55783,
+    "after_bin_close": 5783639
+  },
+  "duplicate_model_records_removed": 0,
+  "training_target_mean_bpm": 85.79224383570562,
+  "window_coverage_by_split": [
+    {
+      "split": "test",
+      "windows": 610450,
+      "patients": 7578,
+      "stays": 11118,
+      "imputed_input_slots": 635713,
+      "total_input_slots": 3662700
+    },
+    {
+      "split": "train",
+      "windows": 2667060,
+      "patients": 34793,
+      "stays": 49161,
+      "imputed_input_slots": 2777282,
+      "total_input_slots": 16002360
+    },
+    {
+      "split": "validation",
+      "windows": 586786,
+      "patients": 7475,
+      "stays": 10578,
+      "imputed_input_slots": 611615,
+      "total_input_slots": 3520716
+    }
+  ],
+  "eligible_origins_by_split": [
+    {
+      "split": "test",
+      "origins_with_six_hours_and_observed_target": 822892
+    },
+    {
+      "split": "train",
+      "origins_with_six_hours_and_observed_target": 3587053
+    },
+    {
+      "split": "validation",
+      "origins_with_six_hours_and_observed_target": 791020
+    }
+  ],
+  "nonnegative_recording_delay": {
+    "median_minutes": 24.0,
+    "p90_minutes": 100.0
+  },
+  "input_policy": "Each historical bin reconstructed using only records stored by the current prediction time; one-bin forward fill from an observed older bin.",
+  "created_at_utc": "2026-09-26T06:56:46.891648+00:00",
+  "run_id": "20260926-core-v2",
+  "config": {
+    "raw_root": "C:/_my/datasets/raw/mimic-iv-2.2/mimic-iv-2.2",
+    "private_root": "C:/_my/datasets/processed/vitalalert",
+    "run_id": "20260926-core-v2",
+    "dataset_version": "2.2",
+    "seed": 20260926,
+    "lookback_hours": 6,
+    "memory_limit": "4GB",
+    "threads": 4
+  },
+  "code_config_sha256": "3ede6cbe7ab71e2e0da0e45203f4d72f1fc15558603cfe2be5a868a2601faa23",
+  "input_checksums": [
+    {
+      "file": "icu/d_items.csv.gz",
+      "bytes": 57476,
+      "sha256": "83df9e7305f67234ebdd7cf92ab36ece6aeae613f0a88d092b3bdd52056b9e62",
+      "matches_local_manifest": true
+    },
+    {
+      "file": "icu/icustays.csv.gz",
+      "bytes": 2614571,
+      "sha256": "b7d37536d4ce6f68feb3c5a89068bec34c5f03a573162df02bd57aec53b87c7d",
+      "matches_local_manifest": true
+    },
+    {
+      "file": "hosp/patients.csv.gz",
+      "bytes": 2312631,
+      "sha256": "067cb98b9e8ce510781f3da69efff5f02b5a98d47d3431fe8784a9ea55aad5f3",
+      "matches_local_manifest": true
+    },
+    {
+      "file": "icu/chartevents.csv.gz",
+      "bytes": 2467761053,
+      "sha256": "451e55859336059a83135b0dcdd3631b413b26dd5553add220b0f0944ada6a25",
+      "matches_local_manifest": true
+    }
+  ],
+  "full_chartevents_scan": true,
+  "export_row_counts_match": true,
+  "cohort_excluded_stays": 0,
+  "elapsed_seconds": 103.3,
+  "versions": {
+    "duckdb": "1.5.5",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "pyarrow": "23.0.1"
+  },
+  "python": "3.12.13",
+  "restricted_output_root": "C:\\_my\\datasets\\processed\\vitalalert\\20260926-core-v2",
+  "test_metrics_status": "preliminary descriptive run; no tuning performed; test set has now been inspected"
+}

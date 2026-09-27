@@ -1,0 +1,37 @@
+# Never commit restricted data, patient-level artifacts, or local caches.
+__pycache__/
+.pytest_cache/
+.cache/
+tmp/
+.env
+*.csv
+*.csv.gz
+*.parquet
+*.duckdb*
+*.npy
+*.npz
+*.pt
+*.pth
+*.zip
+data/
+outputs/
+
+# Generated reports and temporary documents
+output/
+*.docx
+*.pdf
+*.hwp
+*.hwpx
+~$*
+
+# Local collaboration instructions and editor settings
+AGENTS.md
+.codex/
+.agents/
+.vscode/
+
+# Local logs and credentials
+*.log
+.env.*
+*.pem
+*.key

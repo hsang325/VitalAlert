@@ -1,0 +1,10 @@
+{
+  "raw_root": "C:/_my/datasets/raw/mimic-iv-2.2/mimic-iv-2.2",
+  "private_root": "C:/_my/datasets/processed/vitalalert",
+  "run_id": "20260926-core-v2",
+  "dataset_version": "2.2",
+  "seed": 20260926,
+  "lookback_hours": 6,
+  "memory_limit": "4GB",
+  "threads": 4
+}
