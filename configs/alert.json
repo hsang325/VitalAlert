@@ -1,0 +1,12 @@
+{
+  "run_id": "alert-v1",
+  "evaluation_id": "test-v1",
+  "lower_bpm": 50.0,
+  "upper_bpm": 120.0,
+  "boundary_rule": "strict_outside",
+  "purpose": "engineering_demonstration_not_clinical",
+  "selected_using_test_optimization": false,
+  "status": "post_regression_test_exploratory_rule",
+  "maximum_case_windows": 24,
+  "minimum_segment_windows": 12
+}

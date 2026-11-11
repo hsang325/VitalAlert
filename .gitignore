@@ -1,9 +1,17 @@
-# Never commit restricted data, patient-level artifacts, or local caches.
+# Local environment and generated files
+.venv/
 __pycache__/
+*.pyc
 .pytest_cache/
 .cache/
-tmp/
+.ruff_cache/
+.chart-data-*/
 .env
+.env.*
+*.log
+
+# Restricted data and model files
+data/
 *.csv
 *.csv.gz
 *.parquet
@@ -12,26 +20,34 @@ tmp/
 *.npz
 *.pt
 *.pth
-*.zip
-data/
-outputs/
+cases_private.json
+case_*private.json
+case_*.png
 
-# Generated reports and temporary documents
+# Generated outputs and local work archives
+reports/
 output/
-*.docx
+outputs/
+tmp/
+submission/
+local_archive/
+temps/
+/보고서/
+/확인하기.html
+/시연.cmd
+*.zip
 *.pdf
+*.docx
 *.hwp
 *.hwpx
+*.hwdt
 ~$*
 
-# Local collaboration instructions and editor settings
+# Local collaboration and editor files
 AGENTS.md
 .codex/
 .agents/
 .vscode/
-
-# Local logs and credentials
-*.log
-.env.*
 *.pem
 *.key
+.DS_Store

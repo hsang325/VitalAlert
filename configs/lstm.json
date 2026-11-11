@@ -1,0 +1,34 @@
+{
+  "model_run_id": "lstm-v1",
+  "data_run_id": "hr-v1",
+  "private_model_root": "../vitalalert-data/models",
+  "seed": 20261028,
+  "device": "cpu",
+  "cpu_threads": 4,
+  "batch_size": 4096,
+  "evaluation_batch_size": 16384,
+  "max_epochs": 12,
+  "patience": 3,
+  "min_delta_bpm": 0.001,
+  "learning_rate": 0.001,
+  "weight_decay": 1e-05,
+  "gradient_clip_norm": 1.0,
+  "candidates": [
+    {
+      "name": "lstm_h32",
+      "hidden_size": 32
+    },
+    {
+      "name": "lstm_h64",
+      "hidden_size": 64
+    }
+  ],
+  "selection_metric": "validation_mae_bpm",
+  "input_features": [
+    "standardized_heart_rate",
+    "observed_mask"
+  ],
+  "prediction_head": "last_heart_rate_plus_learned_correction",
+  "loss": "mean_absolute_error",
+  "test_patient_data_allowed": false
+}

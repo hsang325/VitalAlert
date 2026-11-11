@@ -1,0 +1,5 @@
+# LSTM 웹 실행에 필요한 비-PyTorch 패키지. 이 프로젝트에서 확인한 버전
+# 학습 모듈의 Parquet 가져오기 때문에 추론만 실행해도 pyarrow 필요
+# PyTorch는 README의 CPU/GPU별 명령으로 별도 설치
+numpy==2.5.3
+pyarrow==23.0.1

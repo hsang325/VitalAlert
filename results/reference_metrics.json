@@ -1,0 +1,41 @@
+{
+  "description": "Historical MIMIC-IV 2.2 evaluation; not results of the bundled baseline screen demo.",
+  "evaluation_id": "20261029-lstm-test-v1",
+  "checkpoint_sha256": "bf7fa26df68ea26e1d5e70ea939b91add4470661d0b1a4b22b8358c239c96d22",
+  "metrics": {
+    "persistence": {
+      "windows": 596945,
+      "patients": 7573,
+      "mae_bpm": 6.453429310306723,
+      "rmse_bpm": 9.480970149799505,
+      "patient_macro_mae_bpm": 6.507452491667717
+    },
+    "six_hour_mean": {
+      "windows": 596945,
+      "patients": 7573,
+      "mae_bpm": 6.285797164178589,
+      "rmse_bpm": 8.92861028406869,
+      "patient_macro_mae_bpm": 6.3915508354731765
+    },
+    "training_mean": {
+      "windows": 596945,
+      "patients": 7573,
+      "mae_bpm": 14.031878418690274,
+      "rmse_bpm": 17.55670059619501,
+      "patient_macro_mae_bpm": 13.88470394149788
+    },
+    "lstm": {
+      "windows": 596945,
+      "patients": 7573,
+      "mae_bpm": 5.956432452206996,
+      "rmse_bpm": 8.558794439471072,
+      "patient_macro_mae_bpm": 6.0142738205658475
+    }
+  },
+  "limitations": [
+    "Historical baseline test results were inspected before this frozen LSTM evaluation; this is not an untouched test.",
+    "One seed and two validation-selected candidates; no confidence intervals or external validation.",
+    "LSTM uses observation masks in addition to HR; baselines use HR alone.",
+    "Hourly-mean regression errors do not establish event detection, clinical alert safety or utility."
+  ]
+}

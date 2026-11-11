@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VitalAlert · 심박수 예측</title>
+    <link rel="stylesheet" href="/app.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/"
+        >V<span>ital</span>Alert<span class="dot">●</span></a
+      ><span>ICU HEART RATE · RESEARCH DEMO</span
+      ><strong id="mode">불러오는 중</strong>
+    </header>
+    <main>
+      <section class="intro">
+        <div>
+          <p class="eyebrow">FROM OBSERVATION TO PREDICTION</p>
+          <h1>다음 한 시간의 심박수를 읽다.</h1>
+          <p>
+            과거 6시간의 관측으로 다음 시간의 평균을 예측하고, 설정 범위를
+            벗어나는지 확인합니다.
+          </p>
+        </div>
+        <div class="model-badge">
+          실행 모델<strong id="model-name">불러오는 중</strong
+          ><small id="model-detail"></small>
+        </div>
+      </section>
+      <div class="notice" id="notice">
+        연구 시연용입니다. 경보 표시는 임상 진단·위험 점수가 아닙니다.
+      </div>
+      <section class="workflow" aria-label="전체 처리 흐름">
+        <span
+          >01 <b id="workflow-source">입력 자료</b
+          ><small id="workflow-source-note"></small></span
+        ><i>→</i
+        ><span
+          >02 <b id="workflow-input">입력 준비</b
+          ><small id="workflow-input-note"></small></span
+        ><i>→</i
+        ><span>03 <b>6시간 입력</b><small>심박수 + 관측 표시</small></span
+        ><i>→</i
+        ><span
+          >04 <b id="workflow-model">예측</b
+          ><small id="workflow-model-note"></small></span
+        ><i>→</i
+        ><span
+          >05 <b>다음 시간 평균</b><small>예측 결과 · 범위 표시</small></span
+        >
+      </section>
+      <section class="toolbar">
+        <label
+          >사례 선택<select id="case-select" aria-label="사례 선택"></select
+        ></label>
+        <div class="timeline">
+          <div>
+            <span id="time-label">예측 기준</span><span id="step-label"></span>
+          </div>
+          <input
+            id="time-slider"
+            aria-label="예측 시점"
+            type="range"
+            min="0"
+            max="23"
+            value="12"
+          />
+        </div>
+        <button id="next" type="button">다음 시점 →</button
+        ><label class="check"
+          ><input type="checkbox" id="reveal" /> 사후 정답 함께 보기</label
+        >
+      </section>
+      <section class="metrics">
+        <article>
+          <small>마지막 입력 구간 평균</small><strong id="last-value">—</strong
+          ><span>bpm · 입력의 마지막 값</span>
+        </article>
+        <article class="prediction">
+          <small>다음 한 시간 평균 예측</small><strong id="prediction">—</strong
+          ><span id="prediction-note">bpm</span>
+        </article>
+        <article id="status-card">
+          <small>설정 범위 판정</small><strong id="alert-status">—</strong
+          ><span id="rule-label"></span>
+        </article>
+        <article>
+          <small>사후 확인한 다음 시간 평균</small
+          ><strong id="actual">숨김</strong
+          ><span id="actual-note">예측 시점에는 알 수 없는 값</span>
+        </article>
+      </section>
+      <section class="panel comparison-panel">
+        <h2>현재 시점의 예측 비교</h2>
+        <table>
+          <thead><tr><th>방법</th><th>예측 평균 (bpm)</th><th>절대오차 (bpm)</th></tr></thead>
+          <tbody>
+            <tr><td id="comparison-model">실행 모델</td><td id="comparison-prediction">—</td><td id="prediction-error">숨김</td></tr>
+            <tr><td>6시간 평균 baseline</td><td id="baseline-prediction">—</td><td id="baseline-error">숨김</td></tr>
+          </tbody>
+        </table>
+        <p class="caption" id="comparison-note">사후 정답을 켜면 실제 평균과 예측값의 절대 차이를 표시합니다.</p>
+      </section>
+      <section class="content">
+        <article class="panel chart-panel">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">TEMPORAL VIEW</p>
+              <h2>실제값과 예측값의 흐름</h2>
+            </div>
+            <div class="legend">
+              <span class="actual-line">관측 평균</span
+              ><span class="pred-line" id="prediction-legend">예측</span
+              ><span class="base-line">6시간 평균</span>
+            </div>
+          </div>
+          <svg
+            id="chart"
+            viewBox="0 0 900 300"
+            role="img"
+            aria-label="시간에 따른 심박수 실제값과 예측값 비교"
+          ></svg>
+          <p class="caption" id="chart-note"></p>
+        </article>
+        <article class="panel input-panel">
+          <p class="eyebrow">MODEL INPUT</p>
+          <h2>이 예측에 사용한 6시간</h2>
+          <p class="subtle">오래된 구간 → 최근 구간 · 관측 1 / 보완 0</p>
+          <table>
+            <thead>
+              <tr>
+                <th>상대 구간</th>
+                <th>심박수</th>
+                <th>관측 표시</th>
+              </tr>
+            </thead>
+            <tbody id="input-rows"></tbody>
+          </table>
+          <p class="caption" id="input-note"></p>
+        </article>
+      </section>
+      <section class="bottom">
+        <article class="panel">
+          <p class="eyebrow">TRY A PREDICTION</p>
+          <h2>가상 입력으로 직접 예측</h2>
+          <p class="subtle">
+            오래된 시간부터 6개 평균을 입력하세요. 미측정 구간은 직전 관측값으로 한 번만 보완합니다.
+            첫 구간 또는 연속 두 구간의 미측정은 이 화면에서 처리할 수 없습니다.
+          </p>
+          <form id="manual-form" novalidate>
+            <div class="manual-inputs" id="manual-inputs"></div>
+            <button type="submit" id="predict-button">LSTM으로 예측하기</button>
+          </form>
+          <p id="manual-result" role="status">
+            환자 식별 정보 없이 숫자만 입력하세요.
+          </p>
+        </article>
+        <article class="panel evidence">
+          <p class="eyebrow">TEST EVIDENCE</p>
+          <h2>보고서 참고 결과 · 기존 LSTM 평가</h2>
+          <p><strong>596,945</strong>개 사례 · 7,573명</p>
+          <div class="test-scores">
+            <span>LSTM MAE<b id="test-mae"></b></span
+            ><span>6시간 평균 MAE<b id="test-base"></b></span>
+          </div>
+          <p class="caption">
+            단위 bpm · 현재 실행 모델의 평가가 아닌 기존 보고서의 전체
+            집계입니다. 기존 baseline 테스트 결과는 모델 개발 전에 이미
+            관찰했습니다.
+          </p>
+        </article>
+      </section>
+      <footer>
+        VitalAlert · Sangsu Ha
+        <span
+          >로컬 연구 시연 · 다음 한 시간 평균 예측 · 임상 사용 검증 없음</span
+        >
+      </footer>
+      <p id="error" role="alert" hidden></p>
+    </main>
+  </body>
+</html>
